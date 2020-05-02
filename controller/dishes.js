@@ -1,31 +1,21 @@
 const Dishes = require('../models/Dishes');
+const ErrorResponse = require('../utils/errorResponse');
+const asyncHandler = require('../middleware/async');
 /**
  * @params req, res, next
  * @description Get All dishes from database
  * @route GET   /chefonline/v1/dishes
  * @access Public
  */
-exports.getDishes = async (req, res, next) => {
-    try {
-        const dishes = await Dishes.find();
-        if (!dishes) {
-            return res.status(400).json({
-                success: false,
-                count: dishes.length,
-                data: 'No dish found',
-            });
-        }
-        res.status(200).json({
-            success: true,
-            data: dishes,
-        });
-    } catch (error) {
-        res.status(400).json({
-            success: false,
-            data: 'Bad Request',
-        });
-    }
-};
+exports.getDishes = asyncHandler(async (req, res, next) => {
+    const dishes = await Dishes.find();
+
+    res.status(200).json({
+        success: true,
+        count: dishes.length,
+        data: dishes,
+    });
+});
 
 /**
  * @params req, res, next
@@ -33,26 +23,18 @@ exports.getDishes = async (req, res, next) => {
  * @route GET   /chefonline/v1/dishes/:id
  * @access Public
  */
-exports.getDish = async (req, res, next) => {
-    try {
-        const dish = await Dishes.findById(req.params.id);
-        if (!dish) {
-            return res.status(400).json({
-                success: false,
-                data: 'No dish found',
-            });
-        }
-        res.status(200).json({
-            success: true,
-            data: dish,
-        });
-    } catch (error) {
-        res.status(400).json({
-            success: false,
-            data: 'Bad Request',
-        });
+exports.getDish = asyncHandler(async (req, res, next) => {
+    const dish = await Dishes.findById(req.params.id);
+    if (!dish) {
+        return next(
+            new ErrorResponse(`No dish found with id ${req.params.id}`, 404)
+        );
     }
-};
+    res.status(200).json({
+        success: true,
+        data: dish,
+    });
+});
 
 /**
  * @params req, res, next
@@ -60,15 +42,13 @@ exports.getDish = async (req, res, next) => {
  * @route POST   /chefonline/v1/dishes
  * @access Private
  */
-exports.createDish = async (req, res, next) => {
-    try {
-        const dish = await Dishes.create(req.body);
-        res.status(200).json({
-            success: true,
-            data: dish,
-        });
-    } catch (error) {}
-};
+exports.createDish = asyncHandler(async (req, res, next) => {
+    const dish = await Dishes.create(req.body);
+    res.status(200).json({
+        success: true,
+        data: dish,
+    });
+});
 
 /**
  * @params req, res, next
@@ -76,29 +56,21 @@ exports.createDish = async (req, res, next) => {
  * @route PUT   /chefonline/v1/dishes/:id
  * @access Public
  */
-exports.updateDish = async (req, res, next) => {
-    try {
-        const dish = await Dishes.findByIdAndUpdate(req.params.id, req.body, {
-            new: true,
-            runValidators: true,
-        });
-        if (!dish) {
-            return res.status(400).json({
-                success: false,
-                data: 'No dish found',
-            });
-        }
-        res.status(200).json({
-            success: true,
-            data: dish,
-        });
-    } catch (error) {
-        res.status(400).json({
-            success: false,
-            data: 'Bad Request',
-        });
+exports.updateDish = asyncHandler(async (req, res, next) => {
+    const dish = await Dishes.findByIdAndUpdate(req.params.id, req.body, {
+        new: true,
+        runValidators: true,
+    });
+    if (!dish) {
+        return next(
+            new ErrorResponse(`No dish found with id ${req.params.id}`, 404)
+        );
     }
-};
+    res.status(200).json({
+        success: true,
+        data: dish,
+    });
+});
 
 /**
  * @params req, res, next
@@ -106,23 +78,15 @@ exports.updateDish = async (req, res, next) => {
  * @route DELETE   /chefonline/v1/dishes/:id
  * @access Public
  */
-exports.deleteDish = async (req, res, next) => {
-    try {
-        const dish = await Dishes.findByIdAndDelete(req.params.id);
-        if (!dish) {
-            return res.status(400).json({
-                success: false,
-                data: 'No dish found',
-            });
-        }
-        res.status(200).json({
-            success: true,
-            deletedData: dish,
-        });
-    } catch (error) {
-        res.status(400).json({
-            success: false,
-            data: 'Bad Request',
-        });
+exports.deleteDish = asyncHandler(async (req, res, next) => {
+    const dish = await Dishes.findByIdAndDelete(req.params.id);
+    if (!dish) {
+        return next(
+            new ErrorResponse(`No dish found with id ${req.params.id}`, 404)
+        );
     }
-};
+    res.status(200).json({
+        success: true,
+        deletedData: dish,
+    });
+});

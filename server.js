@@ -4,6 +4,7 @@ const morgan = require('morgan');
 const colors = require('colors');
 const dishes = require('./routes/dishes');
 const connectDB = require('./config/db');
+const errorHandler = require('./middleware/error');
 
 // Load environment variables
 dotenv.config({ path: './config/config.env' });
@@ -21,11 +22,13 @@ if (process.env.NODE_ENV === 'development') {
 //Create a database connection
 connectDB();
 app.use('/chefonline/v1/dishes', dishes);
+app.use(errorHandler);
 
 const server = app.listen(
     PORT,
     console.log(
-        `Server running on ${process.env.NODE_ENV} mode, port: ${PORT} `
+        `Server running on ${process.env.NODE_ENV} mode, port: ${PORT} `.yellow
+            .bold.underline.bold
     )
 );
 
